@@ -1,0 +1,191 @@
+<html>
+	<head>
+		<style>
+			@import url(https://fonts.googleapis.com/css?family=Raleway:500);
+			body{
+				background-color: #333333;
+				font-family: Raleway;
+			}
+
+			.center{
+				transform: translate(-50%, -50%);
+				position: absolute;
+				top:74px;
+				left: 148px;
+				margin-right: 80px;
+			}
+			.container{
+				background-color: #black;
+			}
+			.box{
+				width: 38px;
+				height: 38px;
+				box-sizing: border-box;
+				border-style: solid;
+				border-width: 20px 0px 20px 38px;
+				border-color: transparent transparent transparent white;
+				transition: all 100ms ease-in-out;
+			}
+			.pause{
+				border-style: double;
+				border-width:0px 0px 0px 30px;
+			}
+			.wrapper{
+				position: absolute;
+			}
+			#image {
+				display: block;
+				width: 43px;
+				height: 43px;
+			}
+			#title {
+				position: absolute;
+				font-size: 15px;
+				color: white;
+				top: 5px;
+				width: 300px;
+				height: 23px;
+			}
+			#imageContainer{
+				position: absolute;
+				top: -3px;
+			}
+			#player{
+				position: absolute;
+				top: -2px;
+				left: 60px;
+			}
+			#Information{
+				position: absolute;
+				width: 570px;
+				height: 40px;
+				top: 5px;
+				left: 110px;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+			#volumeContainter{
+				position: absolute;
+				top: 25px;
+				left: 120px;
+			}
+			.fa-volume-down{
+				position: absolute;
+				left:107px;
+				top: 28px;
+				color: #ffffff;
+			}
+			.fa-volume-up{
+				position: absolute;
+				left: 505px;
+				top: 28px;
+				color: #ffffff;
+			}
+          #volume-control{
+          	width: 380px;
+          }
+		</style>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	</head>
+	
+	<body>
+		<div class="wrapper">
+			<div id="imageContainer" class = "image"><img id="image" class = "image" src="https://static.wixstatic.com/media/d672b9_d8bc4e93e8054b7dbf3ccbe55ce1c204~mv2.gif"></div>
+			<div id="player"><div class="box"></div></div>
+			<div id="Information">
+				<div id="title">Listen Live With 88.1 The 'Burg</div>
+			</div>
+			
+		</div>
+		
+			<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TCRRNMT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+	</body>
+	<!-- Include the jQuery Mobile library -->
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<!-- Include the jQuery library -->
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	
+	<script>
+		
+		let LiveAudio = new Audio('https://live.wostreaming.net/direct/kcwu-kcwufmmp3-ibc1');
+		const state = {
+			Playing: "playing",
+			Paused: "paused",
+		}
+		let Player = state.Paused;
+		setInterval(updateTitleArtist, 5000); // update title, artist, and image every 5 seconds
+		const box = document.querySelector('.box');
+		box.addEventListener('click', (e)=>{
+			e.target.classList.toggle('pause');
+			
+			if(Player === state.Paused){ // if Player is paused
+				// set playing state to play
+				Player = state.Playing;
+				LiveAudio.play();
+			}else{
+				// set playing state to pause
+				Player = state.Paused;
+				LiveAudio.pause();
+				
+			}
+		})
+		function updateTitleArtist(){
+		'use strict';
+		//use jQuery ajax call
+		$.ajax({
+			//url: "http://api.nowplaying.abacast.net/prt/nowplaying/2/1/3057/nowplaying.xml",
+                        //3295
+			url: "https://prt.wostreaming.net/prt/nowplaying/2/1/3057/nowplaying.xml",
+			picurl: "http://d2ybyaxt0fuzrp.cloudfront.net/image/3057/Tai+Verdes/A-O-K/medium",
+			cache: false,
+			dataType: "xml",
+			success: function(xml){
+				//empty the div on the screen
+				$("#title").empty();
+				$("#artist").empty();
+				$(xml).find("performances").each(function(){
+					//create the set of data using the fields in the xml
+
+					var artist = $(this).find("artist").text();
+					var title = $(this).find("title").text();           
+					var image = $(this).find("mediumimage").text();
+
+					//add the info to the div on the page
+					$("#title").append(title)
+					$("#title").append(" - ");
+                  if(artist === ""){
+                  	artist = "Listen Live With 88.1 The 'Burg"
+                  }
+					$("#title").append(artist)
+					function checkImage(imageSrc, good, bad) {
+						var img = new Image();
+						img.onload = good; 
+						img.onerror = bad;
+						img.src = imageSrc;
+					}
+						if('mediaSession' in navigator){
+							navigator.mediaSession.metadata=new MediaMetadata({
+								title: title,
+								artist: artist,
+								image:{src:'https://static.wixstatic.com/media/d672b9_d8bc4e93e8054b7dbf3ccbe55ce1c204~mv2.gif', type:'img/png'}
+							});
+						}
+					checkImage(image, 
+						function(){ document.getElementById('image').src=image; }, 
+						function(){ document.getElementById('image').src="https://static.wixstatic.com/media/d672b9_d8bc4e93e8054b7dbf3ccbe55ce1c204~mv2.gif"; } 
+					);
+				});
+			}
+					
+				
+		});
+}
+	
+	</script>
+</html>
